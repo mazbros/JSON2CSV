@@ -1,0 +1,8 @@
+C:\Users\AMAZUR\Documents\Visual Studio 2015\Projects\JSON2CSV\JSON2CSV\bin\Debug\JSON2CSV.exe.config
+C:\Users\AMAZUR\Documents\Visual Studio 2015\Projects\JSON2CSV\JSON2CSV\bin\Debug\JSON2CSV.exe
+C:\Users\AMAZUR\Documents\Visual Studio 2015\Projects\JSON2CSV\JSON2CSV\bin\Debug\JSON2CSV.pdb
+C:\Users\AMAZUR\Documents\Visual Studio 2015\Projects\JSON2CSV\JSON2CSV\bin\Debug\Newtonsoft.Json.dll
+C:\Users\AMAZUR\Documents\Visual Studio 2015\Projects\JSON2CSV\JSON2CSV\bin\Debug\Newtonsoft.Json.xml
+C:\Users\AMAZUR\Documents\Visual Studio 2015\Projects\JSON2CSV\JSON2CSV\obj\Debug\JSON2CSV.exe
+C:\Users\AMAZUR\Documents\Visual Studio 2015\Projects\JSON2CSV\JSON2CSV\obj\Debug\JSON2CSV.pdb
+C:\Users\AMAZUR\Documents\Visual Studio 2015\Projects\JSON2CSV\JSON2CSV\obj\Debug\JSON2CSV.csprojResolveAssemblyReference.cache
