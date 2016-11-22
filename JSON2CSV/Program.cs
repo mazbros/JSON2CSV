@@ -11,7 +11,7 @@ namespace JSON2CSV
     public static class Program
     {
         private static readonly string WorkPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
-        private static readonly StringBuilder _sb = new StringBuilder();
+        private static readonly StringBuilder Sb = new StringBuilder();
         private static DateTime _startTime;
         private static string _jsonFile;
 
@@ -41,9 +41,9 @@ namespace JSON2CSV
                             foreach (var property in o)
 
                                 if (property.Key != o.Properties().Last().Name)
-                                    _sb.Append(property.Key + ",");
+                                    Sb.Append(property.Key + ",");
                                 else
-                                    _sb.Append(property.Key + Environment.NewLine);
+                                    Sb.Append(property.Key + Environment.NewLine);
                             x++;
                             if (x > 0) break;
                         }
@@ -57,19 +57,17 @@ namespace JSON2CSV
                         foreach (JObject o in result)
                         {
                             y++;
-                            _sb.Append("\"");
+                            Sb.Append("\"");
 
                             foreach (var property in o)
-                            {
                                 if (property.Key != o.Properties().Last().Name)
-                                    _sb.Append(property.Value + "\",\"");
+                                    Sb.Append(property.Value + "\",\"");
                                 else
-                                    _sb.Append(property.Value + "\"" + Environment.NewLine);
-                            }
+                                    Sb.Append(property.Value + "\"" + Environment.NewLine);
 
-                            if (y % 1000 == 0)
+                            if (y%1000 == 0)
                                 Console.WriteLine("Processed \t" + y + " lines \t\t " +
-                                                  $"{(double)sw.ElapsedMilliseconds/1000:#,0.00}");
+                                                  $"{(double) sw.ElapsedMilliseconds/1000:#,0.00}");
                         }
                         sw.Stop();
                     }
@@ -96,7 +94,7 @@ namespace JSON2CSV
 
                 if (File.Exists(csvFile)) File.Delete(csvFile);
 
-                File.WriteAllText(csvFile, _sb.ToString());
+                File.WriteAllText(csvFile, Sb.ToString());
 
                 var lineCount = File.ReadLines(csvFile).Count();
 
