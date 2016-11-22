@@ -11,102 +11,70 @@ namespace JSON2CSV
     public static class Program
     {
         private static readonly string WorkPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
-        private static readonly StringBuilder Sb = new StringBuilder();
+        private static readonly StringBuilder _sb = new StringBuilder();
+        private static DateTime _startTime;
+        private static string _jsonFile;
 
         private static void Main()
         {
             Restart:
             Console.WriteLine("Enter filename:");
-            var jsonFile = WorkPath + "\\" + Console.ReadLine() + ".json";
 
-            #region Definition
-
-            //var jsonDef = new object[]
-            //{
-            //    new
-            //    {
-            //        DRID = 0,
-            //        Rank = 0,
-            //        Publications = 0,
-            //        RecentDate = "",
-            //        NPI = "",
-            //        REVIEWER_ID = "",
-            //        Specialty = "",
-            //        First_Name = "",
-            //        Last_Name = "",
-            //        Address = "",
-            //        City = "",
-            //        State = "",
-            //        Zipcode = "",
-            //        Phone = "",
-            //        Fax = "",
-            //        Email_Address = "",
-            //        County = "",
-            //        Company_Name = "",
-            //        Latitude = "",
-            //        Longitude = "",
-            //        Timezone = "",
-            //        Website = "",
-            //        Gender = "",
-            //        Credentials = "",
-            //        Taxonomy_Code = "",
-            //        Taxonomy_Classification = "",
-            //        Taxonomy_Specialization = "",
-            //        License_Number = "",
-            //        License_State = "",
-            //        Medical_School = "",
-            //        Residency_Training = "",
-            //        Graduation_Year = "",
-            //        Patients = 0,
-            //        Claims = 0,
-            //        Prescriptions = 0,
-            //        Country = ""
-            //    }
-            //}; 
-
-            #endregion
-
-            var startTime = DateTime.Now;
+            _jsonFile = WorkPath + "\\" + Console.ReadLine() + ".json";
+            _startTime = DateTime.Now;
 
             try
             {
-                using (var file = File.OpenText(jsonFile))
-
-                using (var reader = new JsonTextReader(file))
+                using (var file = File.OpenText(_jsonFile))
                 {
-                    var json = JToken.ReadFrom(reader);
-
-                    var result = JsonConvert.DeserializeAnonymousType(json.ToString(), new object[] {new {}});
-
-                    Console.WriteLine("Input file contains \t" + result.Length + " lines");
-
-                    var x = 0;
-                    foreach (JObject o in result)
+                    using (var reader = new JsonTextReader(file))
                     {
-                        foreach (var property in o)
+                        var json = JToken.ReadFrom(reader);
+
+                        var result = JsonConvert.DeserializeAnonymousType(json.ToString(), new object[] {new {}});
+
+                        Console.WriteLine("Input file contains \t" + result.Length + " lines");
+
+                        var x = 0;
+                        foreach (JObject o in result)
                         {
-                            Sb.Append(property.Key + ",");
+                            foreach (var property in o)
+
+                                if (property.Key != o.Properties().Last().Name)
+                                    _sb.Append(property.Key + ",");
+                                else
+                                    _sb.Append(property.Key + Environment.NewLine);
+                            x++;
+                            if (x > 0) break;
                         }
-                        Sb.Replace(Sb.ToString(), Sb.ToString().Substring(0, Sb.Length - 1));
-                        Sb.Append(Environment.NewLine);
-                        x++;
-                        if (x > 0) break;
-                    }
 
-                    foreach (JObject o in result)
-                    {
-                        Sb.Append("\"");
+                        Console.WriteLine("File header inserted.");
 
-                        foreach (var property in o)
+                        var y = 0;
+                        var sw = new Stopwatch();
+                        sw.Start();
+
+                        foreach (JObject o in result)
                         {
-                            Sb.Append(property.Value + "\",\"");
-                        }
-                        Sb.Replace(Sb.ToString(), Sb.ToString().Substring(0, Sb.Length - 2));
-                        Sb.Append(Environment.NewLine);
-                    }
+                            y++;
+                            _sb.Append("\"");
 
-                    CreateCsv(jsonFile, Sb, startTime);
+                            foreach (var property in o)
+                            {
+                                if (property.Key != o.Properties().Last().Name)
+                                    _sb.Append(property.Value + "\",\"");
+                                else
+                                    _sb.Append(property.Value + "\"" + Environment.NewLine);
+                            }
+
+                            if (y % 1000 == 0)
+                                Console.WriteLine("Processed \t" + y + " lines \t\t " +
+                                                  $"{(double)sw.ElapsedMilliseconds/1000:#,0.00}");
+                        }
+                        sw.Stop();
+                    }
                 }
+                CreateCsv();
             }
             catch (Exception ex)
             {
@@ -117,24 +85,23 @@ namespace JSON2CSV
                     Console.ResetColor();
                     goto Restart;
                 }
-
             }
         }
 
-        private static void CreateCsv(string jsonFile, StringBuilder sb, DateTime startTime)
+        private static void CreateCsv()
         {
             try
             {
-                var csvFile = jsonFile.Replace(".json", ".csv");
+                var csvFile = _jsonFile.Replace(".json", ".csv");
 
                 if (File.Exists(csvFile)) File.Delete(csvFile);
 
-                File.WriteAllText(csvFile, sb.ToString());
+                File.WriteAllText(csvFile, _sb.ToString());
 
                 var lineCount = File.ReadLines(csvFile).Count();
 
                 Console.WriteLine("Output file contains \t" + (lineCount - 1) + " lines.");
-                Console.WriteLine("Processed in \t\t" + $"{DateTime.Now - startTime}");
+                Console.WriteLine("Processed in \t\t" + $"{DateTime.Now - _startTime}");
                 Console.WriteLine("Press any key to open output file.");
 
                 Console.ReadKey(true);
@@ -149,7 +116,7 @@ namespace JSON2CSV
                     Console.WriteLine("File is open. Please close the file and press any key.");
                     Console.ResetColor();
                     Console.ReadKey(true);
-                    CreateCsv(jsonFile, Sb, startTime);
+                    CreateCsv();
                 }
             }
         }
