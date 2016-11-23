@@ -33,7 +33,15 @@ namespace JSON2CSV
 
                         var result = JsonConvert.DeserializeAnonymousType(json.ToString(), new object[] {new {}});
 
-                        Console.WriteLine("Input file contains \t" + result.Length + " lines");
+                        Console.WriteLine("\nInput file contains \t" + result.Length + " lines");
+
+                        if (result.Length == 0)
+                        {
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            Console.WriteLine("\nThere are no records to convert! Choose another file.\n");
+                            Console.ResetColor();
+                            goto Restart;
+                        }
 
                         var x = 0;
                         foreach (JObject o in result)
@@ -48,7 +56,7 @@ namespace JSON2CSV
                             if (x > 0) break;
                         }
 
-                        Console.WriteLine("File header inserted.");
+                        Console.WriteLine("\nFile header inserted.\n");
 
                         var y = 0;
                         var sw = new Stopwatch();
@@ -79,7 +87,7 @@ namespace JSON2CSV
                 if (ex.GetType().ToString().Contains("FileNotFound"))
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("File not found. Re-enter the name.");
+                    Console.WriteLine("\nFile not found. Re-enter the name.\n");
                     Console.ResetColor();
                     goto Restart;
                 }
@@ -98,9 +106,10 @@ namespace JSON2CSV
 
                 var lineCount = File.ReadLines(csvFile).Count();
 
-                Console.WriteLine("Output file contains \t" + (lineCount - 1) + " lines.");
-                Console.WriteLine("Processed in \t\t" + $"{DateTime.Now - _startTime}");
-                Console.WriteLine("Press any key to open output file.");
+                Console.WriteLine("\nOutput file contains \t" + (lineCount - 1) + " lines.");
+                Console.WriteLine("\nProcessed in \t\t" + $"{DateTime.Now - _startTime}");
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("\nPress any key to open output file.");
 
                 Console.ReadKey(true);
 
@@ -111,7 +120,7 @@ namespace JSON2CSV
                 if (ex.ToString().Contains("The process cannot access the file"))
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("File is open. Please close the file and press any key.");
+                    Console.WriteLine("\nFile is open. Please close the file and press any key.");
                     Console.ResetColor();
                     Console.ReadKey(true);
                     CreateCsv();
