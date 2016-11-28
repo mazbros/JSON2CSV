@@ -11,7 +11,7 @@ namespace JSON2CSV
     public static class Program
     {
         private static readonly string WorkPath = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
-        private static readonly StringBuilder Sb = new StringBuilder();
+        private static readonly StringBuilder Result = new StringBuilder();
         private static DateTime _startTime;
         private static string _jsonFile;
 
@@ -49,29 +49,31 @@ namespace JSON2CSV
                             foreach (var property in o)
 
                                 if (property.Key != o.Properties().Last().Name)
-                                    Sb.Append(property.Key + ",");
+                                    Result.Append(property.Key + ",");
                                 else
-                                    Sb.Append(property.Key + Environment.NewLine);
+                                    Result.Append(property.Key + Environment.NewLine);
                             x++;
                             if (x > 0) break;
                         }
 
-                        Console.WriteLine("\nFile header inserted.\n");
+                        Console.WriteLine("\nFile header created.\n");
 
                         var y = 0;
                         var sw = new Stopwatch();
                         sw.Start();
 
+                        Console.WriteLine("Writing file content.\n");
+
                         foreach (JObject o in result)
                         {
                             y++;
-                            Sb.Append("\"");
+                            Result.Append("\"");
 
                             foreach (var property in o)
                                 if (property.Key != o.Properties().Last().Name)
-                                    Sb.Append(property.Value + "\",\"");
+                                    Result.Append(property.Value + "\",\"");
                                 else
-                                    Sb.Append(property.Value + "\"" + Environment.NewLine);
+                                    Result.Append(property.Value + "\"" + Environment.NewLine);
 
                             if (y%1000 == 0)
                                 Console.WriteLine("Processed \t" + y + " lines \t\t " +
@@ -102,7 +104,7 @@ namespace JSON2CSV
 
                 if (File.Exists(csvFile)) File.Delete(csvFile);
 
-                File.WriteAllText(csvFile, Sb.ToString());
+                File.WriteAllText(csvFile, Result.ToString());
 
                 var lineCount = File.ReadLines(csvFile).Count();
 
