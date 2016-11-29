@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -33,7 +34,7 @@ namespace JSON2CSV
 
                         var result = JsonConvert.DeserializeAnonymousType(json.ToString(), new object[] {new {}});
 
-                        Console.WriteLine("\nInput file contains \t" + result.Length + " lines");
+                        Console.WriteLine("\nInput file contains \t" + result.Length + " lines\n");
 
                         if (result.Length == 0)
                         {
@@ -43,43 +44,9 @@ namespace JSON2CSV
                             goto Restart;
                         }
 
-                        var x = 0;
-                        foreach (JObject o in result)
-                        {
-                            foreach (var property in o)
+                        CreateHeader(result);
 
-                                if (property.Key != o.Properties().Last().Name)
-                                    Result.Append(property.Key + ",");
-                                else
-                                    Result.Append(property.Key + Environment.NewLine);
-                            x++;
-                            if (x > 0) break;
-                        }
-
-                        Console.WriteLine("\nFile header created.\n");
-
-                        var y = 0;
-                        var sw = new Stopwatch();
-                        sw.Start();
-
-                        Console.WriteLine("Writing file content.\n");
-
-                        foreach (JObject o in result)
-                        {
-                            y++;
-                            Result.Append("\"");
-
-                            foreach (var property in o)
-                                if (property.Key != o.Properties().Last().Name)
-                                    Result.Append(property.Value + "\",\"");
-                                else
-                                    Result.Append(property.Value + "\"" + Environment.NewLine);
-
-                            if (y%1000 == 0)
-                                Console.WriteLine("Processed \t" + y + " lines \t\t " +
-                                                  $"{(double) sw.ElapsedMilliseconds/1000:#,0.00}");
-                        }
-                        sw.Stop();
+                        WriteContent(result, result.Length/10 < 100 ? 10 : result.Length/100 > 100 ? 1000 : 100);
                     }
                 }
                 CreateCsv();
@@ -94,6 +61,53 @@ namespace JSON2CSV
                     goto Restart;
                 }
             }
+        }
+
+        private static void CreateHeader(IEnumerable<object> result)
+        {
+            foreach (JObject o in result)
+            {
+                foreach (var property in o)
+
+                    if (property.Key != o.Properties().Last().Name)
+                    {
+                        Result.Append(property.Key + ",");
+                        Console.WriteLine("\t" + property.Key);
+                    }
+                    else
+                    {
+                        Result.Append(property.Key + Environment.NewLine);
+                        Console.WriteLine("\t" + property.Key);
+                    }
+                break;
+            }
+            Console.WriteLine("\nFile header created.\n");
+        }
+
+        private static void WriteContent(IEnumerable<object> result, int interval)
+        {
+            var y = 0;
+            var sw = new Stopwatch();
+            sw.Start();
+
+            Console.WriteLine("Writing file content.\n");
+
+            foreach (JObject o in result)
+            {
+                y++;
+                Result.Append("\"");
+
+                foreach (var property in o)
+                    if (property.Key != o.Properties().Last().Name)
+                        Result.Append(property.Value + "\",\"");
+                    else
+                        Result.Append(property.Value + "\"" + Environment.NewLine);
+
+                if (y%interval == 0)
+                    Console.WriteLine("Processed \t" + y + " lines \t\t " +
+                                      $"{(double) sw.ElapsedMilliseconds/1000:#,0.00}");
+            }
+            sw.Stop();
         }
 
         private static void CreateCsv()
