@@ -105,7 +105,7 @@ namespace JSON2CSV
 
                 if (y%interval == 0)
                     Console.WriteLine("Processed \t" + y + " lines \t\t " +
-                                      $"{(double) sw.ElapsedMilliseconds/1000:#,0.00}");
+                                      $"{(double) sw.ElapsedMilliseconds/1000:#,0.000}");
             }
             sw.Stop();
         }
@@ -123,7 +123,8 @@ namespace JSON2CSV
                 var lineCount = File.ReadLines(csvFile).Count();
 
                 Console.WriteLine("\nOutput file contains \t" + (lineCount - 1) + " lines.");
-                Console.WriteLine("\nProcessed in \t\t" + $"{DateTime.Now - _startTime}");
+                var duration = DateTime.Now - _startTime;
+                Console.WriteLine("\nProcessed in \t\t" + $"{duration.ToString().Substring(0,duration.ToString().Length - 4)}");
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("\nPress any key to open output file.");
 
